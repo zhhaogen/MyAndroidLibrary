@@ -1,0 +1,76 @@
+/**
+ * 在项目目录下添加includes.properties,脚本setting.gradle添加引用apply from:"${System.env.GRADLE_USER_HOME}/../scripts/projectSetting.gradle"
+ *#设置外部依赖项目
+ *###projectName=projectDir,项目名=项目路径
+ *###缩写projectName=,相当于projectName=../projectName
+ **/
+
+System.out.println("---including projects---");
+/**
+ * 读取依赖的外部项目
+ * @param projectPaths <名称,路径>
+ **/
+Map<String,File> readOutProjects(File projectDir,Map<String,File> projectPaths){
+    File includeFile=new File(projectDir,"includes.properties");
+    if(!includeFile.exists()){
+        return projectPaths;
+    }
+//    System.out.println("read["+projectDir.getName()+"] includes.properties");
+    Properties ps=new Properties();
+	InputStream is=null;
+    try{
+		is=new FileInputStream(includeFile);
+        ps.load(is);
+        for(String name in ps.keys()){
+            String path=projectPaths.get(name);
+            if(path==null||path.isEmpty()){
+                path=new File(projectDir.getParentFile(),name).getCanonicalPath();
+            }
+            if(projectPaths.containsKey(name)){
+                String oldPath=projectPaths.get(name);
+                if(Objects.equals(oldPath,path)){
+                    //skip
+                    continue;
+                }
+                System.out.println("Project["+name+"] "+oldPath+" =>"+path);
+            }
+            projectPaths.put(name,path);
+            //读取子项目依赖
+            readOutProjects(new File(path),projectPaths);
+        }
+    }catch(Exception igr){
+    }
+	if(is!=null){
+		is.close();
+	}
+    return projectPaths;
+}
+/**
+ * 读取依赖的内部项目
+ * @param projectPaths <名称,路径>
+ **/
+Map<String,File> readSubProjects(File projectDir,Map<String,File> projectPaths){
+    File[] dirs=projectDir.listFiles();
+    if(dirs==null||dirs.length==0){
+        return projectPaths;
+    }
+    for(File dir in dirs){
+        if(dir.isDirectory()&&new File(dir,"build.gradle").exists()&&!new File(dir,"ignore").exists()){
+            projectPaths.put(dir.getName(),dir.getCanonicalFile());
+        }
+    }
+    return projectPaths;
+}
+
+//初始化
+Map<String,File> projectPaths=new HashMap<String, File>();
+readOutProjects(settingsDir,projectPaths);
+readSubProjects(settingsDir,projectPaths);
+
+for(String name in projectPaths.keySet()){
+    System.out.println("include "+name);
+    String path=projectPaths.get(name);
+    include(name);
+    project(":"+name).projectDir=new File(path);
+}
+System.out.println("###including projects###");

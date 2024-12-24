@@ -1,0 +1,64 @@
+//插件
+plugins {
+	id 'java-library'
+}
+group GROUP_ID
+version LIBRARY_VERSION
+
+sourceCompatibility = SOURCE_VERSION
+sourceSets{
+    //链接源码为Zhg.Base1的源码
+    main{
+        java{
+            srcDir "../Zhg.Base1/src/main/java"
+        }
+    }
+}
+dependencies {
+    String androidJarPath=findAndroidJar();
+    System.out.println("android.jar dir:"+androidJarPath);
+    compileOnly fileTree(dir:androidJarPath,include:"android.jar")
+}
+//找到android.jar位置
+String findAndroidJar(){
+    String sdkDir=null;
+    if(project.hasProperty("sdk.dir")){
+        System.out.println("try get sdk.dir from project property");
+        sdkDir=project.property("sdk.dir");
+    }else if(project.file("local.properties").exists()){
+        System.out.println("try get sdk.dir from local.properties");
+        Properties ps=new Properties();
+        ps.load(new FileInputStream(project.file("local.properties")));
+        sdkDir=ps.getProperty("sdk.dir");
+    }else{
+        System.out.println("try get sdk.dir from ANDROID_SDK_ROOT env");
+        sdkDir=System.getenv("ANDROID_SDK_ROOT");
+    }
+    if(sdkDir==null){
+        System.out.println("sdk.dir为null ");
+        return null;
+    }
+    File platformsDir=new File(sdkDir,"platforms");
+    if(!platformsDir.exists()){
+        System.out.println("sdk.dir下的platforms不存在 ");
+        return null;
+    }
+    File[] files=platformsDir.listFiles(new FileFilter() {
+        boolean accept(File f) {
+            return f.isDirectory()&&new File(f,"android.jar").exists();
+        }
+    });
+    if(files==null||files.length==0){
+        System.out.println("sdk.dir下的platforms可用内容为空 ");
+        return null;
+    }
+//    Arrays.sort(files, new Comparator<File>() {
+//        int compare(File o1, File o2) {
+//            return Long.compare(o2.lastModified(),o1.lastModified());
+//        }
+//    });
+//    System.out.println(Arrays.toString(files));
+    return files[files.length-1].getPath();
+}
+
+apply from:"../scripts/javaPublish.gradle"

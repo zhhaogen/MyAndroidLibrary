@@ -1,0 +1,120 @@
+/***
+ * android sdk 读取信息脚本
+ *apply from:"${System.env.GRADLE_USER_HOME}/../scripts/androidSdk.gradle"
+ **/
+ System.out.println("get android sdk info");
+/**
+ *获取sdk路径
+ */
+String getSdkDir(){
+    File localFile=new File(rootProject.buildFile.getParentFile(),"local.properties");
+    if(localFile.exists()){
+        Properties ps=new Properties();
+        localFile.withInputStream {ps.load(it)};
+        return ps.getProperty("sdk.dir");
+    }
+    return System.getenv("ANDROID_SDK_ROOT");
+}
+
+class VersionStr implements Comparable<VersionStr>{
+    int major;
+    int update;
+    int fix;
+    VersionStr(String str){
+       String[] arr= str.split("\\.");
+        major=Integer.parseInt(arr[0]);
+        update=Integer.parseInt(arr[1]);
+        fix=Integer.parseInt(arr[2]);
+    }
+    int compareTo(VersionStr o) {
+        int ret=Integer.compare(o.major,major);
+        if(ret!=0){
+            return ret;
+        }
+        ret=Integer.compare(o.update,update);
+        if(ret!=0){
+            return ret;
+        }
+        ret=Integer.compare(o.fix,fix);
+        return ret;
+    }
+}
+/**
+ * 排序a.b.c字符串
+ * @param list
+ */
+private void compareVersion1(List<String> list){
+    list.sort (new Comparator<String>() {
+        int compare(String o1, String o2) {
+            return new VersionStr(o1).compareTo(new VersionStr(o2));
+        }
+    });
+}
+/**
+ *获取所有build-tools版本,按最新版本排序
+ */
+List<String> getBuildToolVersions(){
+    List<String> list=new ArrayList<>();
+    File[] buildToolDirs=new File(getSdkDir(),"build-tools").listFiles();
+    for(File buildToolDir:buildToolDirs){
+        if(!buildToolDir.isDirectory()){
+            continue;
+        }
+        list.add(buildToolDir.getName());
+    }
+    compareVersion1(list);
+    return list;
+}
+/**
+ *获取所有ndk版本,按最新版本排序
+ */
+List<String> getNdkVersions(){
+    List<String> list=new ArrayList<>();
+    File[] ndkDirs=new File(getSdkDir(),"ndk").listFiles();
+    for(File ndkDir:ndkDirs){
+        if(!ndkDir.isDirectory()){
+            continue;
+        }
+        list.add(ndkDir.getName());
+    }
+    compareVersion1(list);
+    return list;
+}
+/**
+ *获取所有平台版本,按最新版本排序
+ */
+List<String> getPlatformVersions(){
+    List<String> list=new ArrayList<>();
+    File[] platformDirs=new File(getSdkDir(),"platforms").listFiles();
+    for(File platformDir:platformDirs){
+        File sourceFile=new File(platformDir,"source.properties");
+        if(!sourceFile.exists()){
+            continue;
+        }
+        Properties ps=new Properties();
+        sourceFile.withInputStream {ps.load(it)};
+        list.add(ps.getProperty("AndroidVersion.ApiLevel"));
+    }
+    list.sort(new Comparator<String>() {
+        int compare(String o1, String o2) {
+            return Integer.parseInt(o2).compareTo(Integer.parseInt(o1));
+        }
+    })
+    return list;
+}
+String getLastBuildToolVersion(){
+	return getBuildToolVersions().get(0);
+}
+String getLastNdkVersion(){
+	return getNdkVersions().get(0);
+}
+String getLastPlatformVersion(){
+	return getPlatformVersions().get(0);
+}
+//导出方法 
+ext.getBuildToolVersions={getBuildToolVersions()};
+ext.getNdkVersions={getNdkVersions()};
+ext.getPlatformVersions={getPlatformVersions()};
+ext.getLastBuildToolVersion={getLastBuildToolVersion()};
+ext.getLastNdkVersion={getLastNdkVersion()};
+ext.getLastPlatformVersion={getLastPlatformVersion()};

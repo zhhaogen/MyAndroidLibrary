@@ -1,0 +1,12 @@
+repositories {
+    maven {
+        url = uri(project.properties.containsKey("LOCAL_REPORT_URL")?project.properties.get("LOCAL_REPORT_URL"):System.getenv("LOCAL_REPORT_URL"))
+        credentials {
+            username = project.properties.containsKey("LOCAL_REPORT_USER_NAME")?project.properties.get("LOCAL_REPORT_USER_NAME"):System.getenv("LOCAL_REPORT_USER_NAME")
+            password = project.properties.containsKey("LOCAL_REPORT_USER_PWD")?project.properties.get("LOCAL_REPORT_USER_PWD"):System.getenv("LOCAL_REPORT_USER_PWD")
+        }
+    }
+    gradlePluginPortal()
+    google()
+    mavenCentral()
+}

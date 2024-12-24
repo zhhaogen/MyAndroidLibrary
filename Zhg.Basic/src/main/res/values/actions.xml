@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="basic_action_sort_reverse">反序</string>
+    <string name="basic_action_sort">排序</string>
+    <string name="basic_action_filter">过滤</string>
+    <string name="basic_action_reset">重置</string>
+    <string name="basic_action_up">向上一级</string>
+    <string name="basic_action_share">分享</string>
+    <string name="basic_action_bug_send">提交报告</string>
+</resources>

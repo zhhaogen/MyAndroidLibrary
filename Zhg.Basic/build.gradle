@@ -1,0 +1,13 @@
+//插件管理
+plugins {
+    id 'com.android.library' version "${androidPluginVersion}" apply false
+}
+apply from:"../scripts/androidProjectLibMini.gradle"
+dependencies {
+    // compileOnly project(":Zhg.Base1") 
+    compileOnly "cn.zhg.base:base1:+"
+    compileOnly "com.android.support:support-annotations:28.0.0"
+}
+
+apply from:"../scripts/androidPublish.gradle"
+apply from:"../scripts/localRepositories.gradle"

@@ -1,0 +1,13 @@
+name: Clean Workflow Logs
+run-name: 清理${{ github.ref }}构建记录
+on:
+  - workflow_dispatch
+jobs:
+  clean:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: dmvict/clean-workflow-runs@v1.0.0
+        with:
+          token: ${{ github.token }}
+          save_min_runs_number: 3
+          save_period: 00:10:00

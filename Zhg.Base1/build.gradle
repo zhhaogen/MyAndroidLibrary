@@ -1,0 +1,13 @@
+//插件
+plugins { 
+    id 'com.android.library' version "${androidPluginVersion}" apply false
+}
+
+apply from:"../scripts/androidProjectLibMini.gradle"
+dependencies {
+    // api project(":Zhg.Base")
+    api "cn.zhg.base:base:+"
+}
+
+apply from:"../scripts/androidPublish.gradle"
+apply from:"../scripts/localRepositories.gradle"

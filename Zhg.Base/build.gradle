@@ -1,0 +1,16 @@
+//插件
+plugins { 
+    id 'com.android.library' version "${androidPluginVersion}" apply false
+}
+
+apply from:"../scripts/androidProjectLibMini.gradle"
+
+dependencies {
+    compileOnly fileTree(dir: "libs",includes: ["*.jar"])
+    // compileOnly project(":Zhg.Base.Prebuild")
+    compileOnly "cn.zhg.base:prebuild:+"
+    compileOnly "com.android.support:support-annotations:28.0.0"
+}
+
+apply from:"../scripts/androidPublish.gradle"
+apply from:"../scripts/localRepositories.gradle"

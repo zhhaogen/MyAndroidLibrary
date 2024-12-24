@@ -1,0 +1,99 @@
+/***
+ * ,脚本build.gradle添加引用apply from:"${System.env.GRADLE_USER_HOME}/../scripts/androidProjectLibMini.gradle"<br>
+ * android标准项目app模块配置<br>
+ * 需要设置变量GROUP_ID、android.pluginVersion、android.minSdk、android.targetSdk、android.versionCode、LIBRARY_VERSION、SOURCE_VERSION
+ **/
+apply from:"../scripts/androidSdk.gradle"
+//默认最新版本
+int androidTargetSdk=Integer.parseInt(properties.getOrDefault("android.targetSdk",getLastBuildToolVersion()));
+//默认最小版本为
+int androidMinSdk=Integer.parseInt(properties.getOrDefault("android.minSdk","16"));
+//当前版本号
+int androidVersionCode=Integer.parseInt(properties.getOrDefault("android.versionCode","1"));
+//当前版本号
+String androidVersionName=properties.getOrDefault("LIBRARY_VERSION",""+androidVersionCode);
+androidVersionName=properties.getOrDefault("android.versionName",androidVersionName);
+//当前包名
+String androidNamespace=properties.getOrDefault("android.namespace",null);
+if(androidNamespace==null){
+   String mGroupId=properties.getOrDefault("GROUP_ID",null);
+   if(mGroupId==null){
+     androidNamespace=project.name;
+   }else{
+     androidNamespace=mGroupId+"."+properties.getOrDefault("PROJECT_NAME",null);
+   }
+}
+System.out.println("build android lib["+androidNamespace+"]"+",targetSdk:"+androidTargetSdk+",minSdk:"+androidMinSdk);
+plugins.apply("com.android.library");
+//最新构建工具
+String androidTargetBuildTool=getLastBuildToolVersion();
+String androidTargetNdkTool=getLastNdkVersion();
+
+android { 
+    buildToolsVersion androidTargetBuildTool
+    compileSdk androidTargetSdk
+	namespace androidNamespace
+    defaultConfig {
+        minSdk androidMinSdk
+        targetSdk androidTargetSdk
+        versionCode androidVersionCode
+        versionName androidVersionName
+		//不需要多个dex
+        multiDexEnabled=false
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility SOURCE_VERSION
+        targetCompatibility SOURCE_VERSION
+    }
+	//不需要viewholder
+    buildFeatures {
+        viewBinding=false
+        buildConfig=false
+    }
+	lint {
+        quiet true
+        abortOnError false
+        ignoreWarnings true
+        checkDependencies false
+		checkReleaseBuilds false
+    }
+	//签名
+	if(System.getenv("ANDROID_SDK_HOME")!=null){
+        signingConfigs {
+            debug {
+                storeFile new File(System.getenv("ANDROID_SDK_HOME"),"key/debug.keystore")
+                storePassword 'android'
+                keyAlias 'androiddebugkey'
+                keyPassword 'android'
+            }
+        }
+    }
+	//jni支持
+	File cmakeFile=new File(buildFile.getParentFile(),"src/main/cpp/CMakeLists.txt"); 
+    if(cmakeFile.exists()){
+        externalNativeBuild {
+            cmake {
+                path cmakeFile
+                ndkVersion androidTargetNdkTool
+            }
+        }
+    }
+	//services loader合并
+	packagingOptions{
+        pickFirst 'META-INF/MANIFEST.MF'
+        merge "META-INF/services/**"
+		merge "META-INF/versions/**"
+    }
+}
+//测试依赖
+dependencies {
+	implementation fileTree(dir: "libs",includes: ["*.jar"])
+    testImplementation "junit:junit:4.13.2"
+}

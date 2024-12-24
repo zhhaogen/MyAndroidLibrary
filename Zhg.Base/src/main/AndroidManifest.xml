@@ -1,0 +1,9 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <permission
+        android:label="应用自身权限"
+        android:name="${applicationId}.permission.INNER"
+        android:protectionLevel="signature" />
+    <uses-permission android:name="${applicationId}.permission.INNER" />
+    <application>
+    </application>
+</manifest>

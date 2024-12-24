@@ -1,0 +1,93 @@
+{
+    "name": "Build All",
+    "run-name": "正在构建${{ github.ref }}分支",
+    "on": {
+        "workflow_dispatch":{},
+        "push":{
+            "tags":["v*"]
+        }
+    },
+    "jobs": {
+        "buildAll": {
+            "runs-on": "ubuntu-latest",
+            "env":{
+                "LOCAL_REPORT_URL":"https://maven.pkg.github.com/${{ github.repository }}",
+                "LOCAL_REPORT_USER_NAME":"${{ github.actor }}"
+            },
+            "steps": [
+                {
+                    "name": "检出代码",
+                    "uses": "actions/checkout@v4"
+                },
+                {
+                    "name": "设置Java环境",
+                    "uses": "actions/setup-java@v3",
+                    "with": {
+                        "java-version": "17",
+                        "distribution": "temurin"
+                    }
+                },
+                {
+                    "name": "设置Android环境",
+                    "uses": "android-actions/setup-android@v3"
+                },
+                {
+                    "name": "开始构建Zhg.Log",
+                    "run": "gradle publish",
+                    "working-directory": "Zhg.Log",
+                    "env": {
+                        "LOCAL_REPORT_USER_PWD": "${{ secrets.GITHUB_TOKEN }}"
+                    }
+                },
+                {
+                    "name": "开始构建Zhg.Base.Prebuild",
+                    "run": "gradle publish",
+                    "working-directory": "Zhg.Base.Prebuild",
+                    "env": {
+                        "LOCAL_REPORT_USER_PWD": "${{ secrets.GITHUB_TOKEN }}"
+                    }
+                },
+                {
+                    "name": "开始构建Zhg.Base",
+                    "run": "gradle publish",
+                    "working-directory": "Zhg.Base",
+                    "env": {
+                        "LOCAL_REPORT_USER_PWD": "${{ secrets.GITHUB_TOKEN }}"
+                    }
+                },
+                {
+                    "name": "开始构建Zhg.Base1",
+                    "run": "gradle publish",
+                    "working-directory": "Zhg.Base1",
+                    "env": {
+                        "LOCAL_REPORT_USER_PWD": "${{ secrets.GITHUB_TOKEN }}"
+                    }
+                },
+                {
+                    "name": "开始构建Zhg.Base2",
+                    "run": "gradle publish",
+                    "working-directory": "Zhg.Base2",
+                    "env": {
+                        "LOCAL_REPORT_USER_PWD": "${{ secrets.GITHUB_TOKEN }}"
+                    }
+                },
+                {
+                    "name": "开始构建Zhg.Base2.Jdk8",
+                    "run": "gradle publish",
+                    "working-directory": "Zhg.Base2.Jdk8",
+                    "env": {
+                        "LOCAL_REPORT_USER_PWD": "${{ secrets.GITHUB_TOKEN }}"
+                    }
+                },
+                {
+                    "name": "开始构建Zhg.Basic",
+                    "run": "gradle publish",
+                    "working-directory": "Zhg.Basic",
+                    "env": {
+                        "LOCAL_REPORT_USER_PWD": "${{ secrets.GITHUB_TOKEN }}"
+                    }
+                }
+            ]
+        }
+    }
+}

@@ -1,0 +1,48 @@
+/***
+ * ,脚本build.gradle添加引用apply from:"${System.env.GRADLE_USER_HOME}/../scripts/javaPublish.gradle"<br>
+ * 适用于上传java项目到本地maven仓库<br>
+ * 上传执行命令: gradle publish
+ * 
+ **/
+if(plugins.findPlugin("maven-publish")==null){
+    plugins.apply("maven-publish")
+}
+
+task sourcesJar(type: Jar) {
+    archiveClassifier = "sources"
+    from sourceSets.main.allSource
+    //将build.gradle、gradle.properties、settings.gradle也上传
+    from project.buildFile
+    from project.file("gradle.properties")
+    from project.file("settings.gradle")
+}
+publishing {
+	publications {
+		String mGroupId=project.properties.containsKey("GROUP_ID")?project.properties.get("GROUP_ID"):project.group;
+		String mName=project.properties.containsKey("PROJECT_NAME")?project.properties.get("PROJECT_NAME"):project.name;
+		String mVersion=project.properties.containsKey("LIBRARY_VERSION")?project.properties.get("LIBRARY_VERSION"):project.version;
+		myLocalUpload(MavenPublication) {
+			from components.java
+			groupId mGroupId
+			artifactId mName
+			version mVersion
+			artifact sourcesJar
+		}
+	}
+	repositories {
+		String mUrl=project.properties.containsKey("LOCAL_REPORT_URL")?project.properties.get("LOCAL_REPORT_URL"):System.getenv("LOCAL_REPORT_URL");
+		String mUserName=project.properties.containsKey("LOCAL_REPORT_USER_NAME")?project.properties.get("LOCAL_REPORT_USER_NAME"):System.getenv("LOCAL_REPORT_USER_NAME");
+		String mUserPwd=project.properties.containsKey("LOCAL_REPORT_USER_PWD")?project.properties.get("LOCAL_REPORT_USER_PWD"):System.getenv("LOCAL_REPORT_USER_PWD");
+		maven {
+			allowInsecureProtocol true
+			url mUrl
+			credentials {
+				username mUserName
+				password mUserPwd
+			}
+			authentication {
+				basic(BasicAuthentication)
+			}
+		}
+	}
+}

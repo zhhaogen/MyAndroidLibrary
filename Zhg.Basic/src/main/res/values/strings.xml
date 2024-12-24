@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="basic_label_bug_title">程序异常</string>
+    <string name="basic_label_bug_msg">应用程序发生不可预知的错误,是否发送反馈信息?</string>
+</resources>

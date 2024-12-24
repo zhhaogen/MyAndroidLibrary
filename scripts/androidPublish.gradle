@@ -1,0 +1,53 @@
+/***
+ * ,脚本build.gradle添加引用apply from:"${System.env.GRADLE_USER_HOME}/../scripts/androidPublish.gradle"<br>
+ * 适用于上传android项目到本地maven仓库<br>
+ * 上传执行命令: gradle publish
+ * 需要设置变量GROUP_ID、PROJECT_NAME、LIBRARY_VERSION
+ **/
+if(plugins.findPlugin("maven-publish")==null){
+    plugins.apply("maven-publish")
+}
+
+//from components.release要放在afterEvaluate下,
+//参见https://developer.android.google.cn/studio/build/maven-publish-plugin
+//参见https://developer.android.google.cn/build/publish-library/upload-library
+android {
+  publishing {
+    singleVariant("release") {
+        withSourcesJar() 
+    }
+  }
+}
+ 
+publishing {
+	publications {
+		String mGroupId=project.properties.containsKey("GROUP_ID")?project.properties.get("GROUP_ID"):project.group;
+		String mName=project.properties.containsKey("PROJECT_NAME")?project.properties.get("PROJECT_NAME"):project.name;
+		String mVersion=project.properties.containsKey("LIBRARY_VERSION")?project.properties.get("LIBRARY_VERSION"):project.version;
+		release(MavenPublication) { 
+			groupId=mGroupId
+			artifactId=mName
+			version=mVersion 
+			afterEvaluate{
+				//release版本,参见上面的singleVariant 
+				from components.release
+			}
+		}
+	}
+	repositories {
+		String mUrl=project.properties.containsKey("LOCAL_REPORT_URL")?project.properties.get("LOCAL_REPORT_URL"):System.getenv("LOCAL_REPORT_URL");
+		String mUserName=project.properties.containsKey("LOCAL_REPORT_USER_NAME")?project.properties.get("LOCAL_REPORT_USER_NAME"):System.getenv("LOCAL_REPORT_USER_NAME");
+		String mUserPwd=project.properties.containsKey("LOCAL_REPORT_USER_PWD")?project.properties.get("LOCAL_REPORT_USER_PWD"):System.getenv("LOCAL_REPORT_USER_PWD");
+		maven {
+			allowInsecureProtocol true
+			url mUrl
+			credentials {
+				username mUserName
+				password mUserPwd
+			}
+			authentication {
+				basic(BasicAuthentication)
+			}
+		}
+	}
+} 

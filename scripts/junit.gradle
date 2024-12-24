@@ -1,0 +1,10 @@
+/***
+ * junit脚本
+ *apply from:"${System.env.GRADLE_USER_HOME}/../scripts/junit.gradle"
+ **/
+
+if(plugins.findPlugin("java")!=null||plugins.findPlugin("java-library")!=null){
+	dependencies { 
+		testImplementation "junit:junit:4.13.2"
+	}
+}

@@ -1,0 +1,17 @@
+plugins {
+	id 'java-library'
+}
+group GROUP_ID
+version LIBRARY_VERSION
+
+sourceCompatibility = SOURCE_VERSION
+
+sourceSets{
+	main{
+		java.srcDirs=["src"]
+	}
+}
+dependencies {   
+}
+
+apply from:"../scripts/javaPublish.gradle"

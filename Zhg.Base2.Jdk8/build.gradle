@@ -1,0 +1,11 @@
+//插件
+plugins { 
+    id 'com.android.library' version "${androidPluginVersion}" apply false
+}
+
+apply from:"../scripts/androidProjectLibMini.gradle"
+dependencies {
+    implementation 'androidx.appcompat:appcompat:1.5.1'
+}
+apply from:"../scripts/androidPublish.gradle"
+apply from:"../scripts/localRepositories.gradle"

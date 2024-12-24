@@ -2,6 +2,9 @@ name: Build Jobs
 run-name: 正在构建${{ github.ref }}分支
 on:
   - workflow_dispatch
+permissions:
+  packages: write
+  issues: write
 jobs:
   build_base_base:
     name: 构建Zhg.Base

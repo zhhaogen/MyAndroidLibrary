@@ -3,6 +3,7 @@ run-name: 正在构建${{ github.ref }}分支
 on:
   - workflow_dispatch
 permissions:
+  contents: read
   packages: write
   issues: write
 jobs:

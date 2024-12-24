@@ -7,6 +7,10 @@
             "tags":["v*"]
         }
     },
+    "permissions":{
+        "packages":"write",
+        "issues":"write"
+    },
     "jobs": {
         "buildAll": {
             "runs-on": "ubuntu-latest",
